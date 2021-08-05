@@ -1,4 +1,4 @@
-package com.company.linkedList;
+package com.company.src.linkedList;
 
 public class AddTwoNumbers2 {
     public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
