@@ -13,7 +13,11 @@ public class BinarySearch {
     static int binarySearch(int arr[], int n, int target){
         int left=0, right = n-1;  //在[left,right]中寻找target元素
         while (left<=right){      // 当left==right时，区间[left,right]仍然有效。
-            int mid = (left+right)/2;
+            /**
+             * int mid = (left+right)/2;
+             * 当left和right足够大时候，left+right可能会有整型溢出的问题
+             */
+            int mid = left+ (right-left)/2;
             if (target == arr[mid]){
                 return mid;
             }else if (target < arr[mid]){
