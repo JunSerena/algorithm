@@ -19,11 +19,27 @@ public class RemoveDuplicatedFromSortedArray26 {
         int len = nums.length;
         int k = 1;
         for (int i=1; i<len;i++){
-            if (nums[k-1]!=nums[i]) {
+            if (nums[k-1]!=nums[i]) {  //上一个确定的不重复元素 不等于 当前元素，说明是新的元素，添加到k, 向前移位
                 nums[k] = nums[i];
                 k++;
             }
         }
         return k;
+    }
+
+
+    public int solve(int[] nums) {
+
+        // [0,k]保存非重复元素
+        int k=0;
+        for (int i = 1; i < nums.length ; i++) {
+            if (nums[i]!=nums[k]){
+                if (i>k+1){  //i>k+1, 说明 k 和 i之间必定有一堆废弃元素
+                    nums[k+1]=nums[i];
+                }
+                k++;
+            }
+        }
+        return k+1;
     }
 }
