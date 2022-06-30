@@ -1,11 +1,16 @@
 package com.company.src.linkedList;
 
+import com.company.src.linkedList.util.ListNode;
+
+import java.util.List;
+import java.util.Stack;
+
 /**
  * 92 反转链表：给你单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请你反转从位置 left 到位置 right 的链表节点，返回 反转后的链表 。
  * 输入：head = [1,2,3,4,5], left = 2, right = 4
  * 输出：[1,4,3,2,5]
  *
- * 思路一：大致分成三节链表，中间那节链表做反转，反转思路（三指针，prev，current，next，将current指向的node节点的指针反转方向）
+ * 思路一：大致分成三节链表，中间那节链表做反转，反转思路（三指针，prev，current，next，将current指向的node节点的指针反转方向）麻烦，废弃
  * 然后连接三节链表
  *
  * ps: 需要重点考虑边界情况，如不能拆分三节，只能拆分两节或一节时
@@ -18,6 +23,8 @@ package com.company.src.linkedList;
  *       当前节点的下一个节点3调整为前驱节点的下一个节点 1->3->2->4->5, （实现步骤，先找到3，保留，使2->4,然后3指向2，1再指向3）
  *       当前结点仍为2， 前驱结点依然是1，重复上一步操作。。。
  *       1->4->3->2->5.
+ *
+ * 思路四：新增dummy node，找到left前的一个节点，将left-right入栈。
  */
 public class ReverseLinkedList2_92 {
     /**
@@ -32,6 +39,13 @@ public class ReverseLinkedList2_92 {
      */
     public static void main(String[] args) {
         // write your code here
+        ListNode node5 = new ListNode(5);
+        ListNode node4 = new ListNode(4, node5);
+        ListNode node3 = new ListNode(3, node4);
+        ListNode node2 = new ListNode(2, node3);
+        ListNode head = new ListNode(1, node2);
+
+        reverseBetween7(head, 2, 4);
     }
 
     /**
@@ -110,62 +124,175 @@ public class ReverseLinkedList2_92 {
     }
 
 
-
     /**
-     * 解法一：这个解法还有bug,以后再调吧。。。。
+     * 用栈， 需要记录入栈前的节点，即left以前的节点prev，将left到right-1的节点全部入栈，将prev.next指向right处节点，如果prev为空，那么right处节点成为新的头节点。
+     *
+     * 只需要遍历到right处节点就可以结束遍历了。
+     *
      * @param head
      * @param left
      * @param right
      * @return
      */
-    //链表中节点数目为 n
-    //1 <= n <= 500
-    //-500 <= Node.val <= 500
-    //1 <= left <= right <= n
-    public ListNode reverseBetween(ListNode head, int left, int right) {
-        //1、重合，不必翻转
-        if (left==right)
+    public static ListNode reverseBetween4(ListNode head, int left, int right) {
+        if ( null == head || head.next ==null || left==right)
             return head;
 
-        //先找到位置left的节点的前一个节点
-        ListNode leftNode = head;
-        for (int i=1; i<left-1; i++){   //left-1处的节点为第一节链表的尾部
-            leftNode = leftNode.next;
-        }
-        //保留第一节链表的尾部，若不存在第一节链表，
-        ListNode part1 = null;
-        if (leftNode != head) {
-            part1 = leftNode;
+        ListNode current = head;
+
+        int count = 0;
+        Stack<ListNode> stack = new Stack<>();
+        ListNode start = null; //left处的前一个节点
+
+        while (current!=null){
+            count++;
+            if (count == left-1){
+                start = current;  //保存入栈前的一个节
+            }else if (count >= left && count < right){
+                stack.push(current);
+            }else if (count==right){
+                // 所有该反转的都已经入栈了,current未入栈，但是current是第一个反转的节点
+                if (start==null){
+                    head = current; //如果说left=1，那么prev是不会被赋值的，也就是说，right处的节点会成为新的头节点
+                }else {
+                    start.next = current;  // 否则的话，就从prev节点处连接到right节点
+                }
+                //记录翻转结束后面的节点
+                ListNode backup = current.next;
+
+                // 开始翻转链表
+                while (!stack.isEmpty()){
+                    current.next = stack.pop();
+                    current = current.next;
+                }
+                current.next = backup;
+                break;
+            }
+
+            current = current.next;
+
         }
 
-        //中间的链表反转：主要思想，逆转current节点的指针
-        leftNode = leftNode.next;  //中间链表的开头 保留 即为反转后链表的尾部
-        ListNode prev = leftNode;
-        ListNode current = leftNode.next;
-        for (int i=left; i<right; i++){ // pre节点位置为i,pre走到right节点，current节点为第三节链表的开头。
-            ListNode next = current.next;
-            //逆转指针
-            current.next = prev;
-            //下一步
-            prev = current;
-            current = next;
-        }
-
-        //第一节链表尾部连接第二节链表的反转后的头部
-        if (part1 != null)
-            part1.next = prev;
-
-        //第二节链表的反转后的尾部连接第三节的头部
-        leftNode.next = current;
         return head;
 
     }
 
-    public static class ListNode {
-        int val;
-        ListNode next;
-        ListNode() {}
-        ListNode(int val) { this.val = val; }
-        ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+
+    /**
+     * 还是用栈，增加一个前驱dummy节点。这样就避免了left处节点的前驱节点为空节点。
+     * @param head
+     * @param left
+     * @param right
+     * @return
+     */
+    public static ListNode reverseBetween5(ListNode head, int left, int right) {
+        if (null == head || head.next == null || left == right)
+            return head;
+
+        Stack<ListNode> stack = new Stack<>();
+        ListNode dummy = new ListNode(0, head);
+        ListNode current = dummy, start=dummy;
+        int count =0;
+
+        while (current!=null){
+            if (count==left-1){
+                start = current;
+            }else if (count>=left && count < right){
+                stack.push(current);
+            }else if (count==right){
+                //开始翻转链表
+                start.next = current;
+                ListNode backup = current.next;
+                while (!stack.isEmpty()){
+                    current.next = stack.pop();
+                    current = current.next;
+                }
+                current.next = backup;
+                break;
+            }
+
+            current = current.next;
+            count++;
+
+        }
+        return dummy.next;
+    }
+
+
+    /**
+     * 重写思路二
+     * 用三指针和dummy节点 同样也需要先找到left前一个节点start节点，然后三指针翻转left-right处节点。需要注意衔接left节点的next到right的后一个节点，以及start节点的next到right节点
+     * @param head
+     * @param left
+     * @param right
+     * @return
+     */
+    public static ListNode reverseBetween6(ListNode head, int left, int right) {
+        if (null == head || head.next == null || left == right)
+            return head;
+
+        ListNode dummy = new ListNode(0, head);
+        ListNode prev = dummy, current= dummy.next;
+        ListNode start = dummy; // left的前一个节点，翻转后他的next指针需要指向right处节点
+
+        int count = 0;
+
+        while (current!=null){
+            count++;
+            if (count == left-1){
+                start = current;
+            }else if (count>=left && count<right){
+                //先备份一下current的next，
+                ListNode backup = current.next;
+                current.next = prev;
+                prev = current;
+                current = backup;
+                continue;
+            }else if (count == right){
+                //left处的节点需要衔接到right节点后一截 start.next是left处节点
+                start.next.next = current.next;
+                current.next = prev; //最后一个right节点翻转
+                start.next = current; //再将right处节点衔接上前面未翻转的节点
+                break;
+            }
+
+            prev = current;
+            current = current.next;
+
+        }
+        return  dummy.next;
+    }
+
+
+    /**
+     * * 思路三：新增dummy node，（重点是前驱节点和当前节点一直都没变）
+     *  重写思路三
+     */
+    public static ListNode reverseBetween7(ListNode head, int left, int right) {
+        if (null == head || head.next == null || left == right)
+            return head;
+
+        ListNode dummy = new ListNode(0, head);
+        ListNode prev = dummy, current= dummy.next;
+        //ListNode start = dummy; // left的前一个节点，他的next指针需要指向right处节点
+
+        //先定位到前驱节点prev和当前节点
+        for (int i = 1; i < left; i++) {
+            prev = prev.next;
+        }
+        current = prev.next; //left处的节点
+
+        //以left处节点为旋转轴，将left的下一个节点放到pre的下一个节点处
+        for (int i = left; i < right; i++) {
+            ListNode next = current.next;
+            current.next = next.next;
+
+            next.next = prev.next;
+            prev.next = next;
+
+        }
+
+        return dummy.next;
+
     }
 }
