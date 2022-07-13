@@ -117,7 +117,7 @@ public class ReverseNodesInKGroup25 {
 
 
 
-    // 三指针翻转
+    // 三指针翻转/头插法
     public static ListNode reverseKGroup4(ListNode head, int k) {
         if (null == head || k==1)
             return head;

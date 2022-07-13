@@ -1,4 +1,4 @@
-package com.company.src.stack;
+package com.company.src.stackAndQueue;
 
 /**
  * 最小栈
