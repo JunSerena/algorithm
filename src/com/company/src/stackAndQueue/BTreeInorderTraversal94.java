@@ -42,16 +42,16 @@ public class BTreeInorderTraversal94 {
      */
     public List<Integer> inorderTraversal(TreeNode root) {
         List<Integer > list = new ArrayList<>();
-        preorder(root, list);
+        inorder(root, list);
         return list;
     }
 
-    public void preorder(TreeNode node, List<Integer> list) {
+    public void inorder(TreeNode node, List<Integer> list) {
         if (null == node)
-            return ;
-        preorder(node.left, list);
+            return;
+        inorder(node.left, list);
         list.add(node.val);
-        preorder(node.right, list);
+        inorder(node.right, list);
 
     }
 
