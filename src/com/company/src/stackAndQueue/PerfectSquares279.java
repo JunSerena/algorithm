@@ -68,4 +68,30 @@ public class PerfectSquares279 {
         }
         return n; //最大的step就是n，n个1的和为n
     }
+
+    /**
+     * 解法二：动态规划，求最优子结构。n可以分为 i*i + left，一旦left=0，说明自身为完全平方数，无需分解，否则，求left的解
+     * @param n
+     * @return
+     */
+    public static int numSquares2(int n) {
+        int[] dp = new int[n+1];
+        dp[0] =0;
+        dp[1] = 1;
+        for (int i = 2; i <= n; i++) { // 从小到大，找到最优子结构
+            int tmp = i+1;
+            for (int j = 1; ; j++) {
+                int l = i-j*j;
+                if (l<0)
+                    break;
+                if (l==0){ // 自身就是完全平方数，不需要分解。
+                    tmp=1;
+                    break;
+                }
+                tmp = Math.min(tmp, 1+dp[l]);
+            }
+            dp[i] =tmp;
+        }
+        return dp[n];
+    }
 }
